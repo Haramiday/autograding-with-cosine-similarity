@@ -2,6 +2,14 @@ from typing import Union
 import numpy as np
 from numpy.linalg import norm
 from fastapi import FastAPI, Request
+import os
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
+
+# Access environment variables
+open_key = os.environ['API_KEY']
 
 app = FastAPI()
 
@@ -18,7 +26,7 @@ def read_root():
 
 #Open ai
 from openai import OpenAI
-client = OpenAI(api_key = "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")
+client = OpenAI(api_key = open_key) #"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")
 
 def get_embedding(text, model="text-embedding-3-large"):
    text = text.replace("\n", " ")
@@ -49,5 +57,5 @@ async def get_prediction(request: Request):
         score = cosine_similarity(message[id]["teacher"],message[id]["student"])
         aggregrate = round(score * message[id]["total"])
         feedback = generate_feedback(message[id]["question"], message[id]["teacher"],message[id]["student"], aggregrate, message[id]["total"])
-        result[id] = { "feedback": feedback , "score":score}
+        result[id] = { "feedback": feedback , "score":round(score,2)}
     return result #await request.json()
